@@ -9,12 +9,12 @@
         <relativePath />
     </parent>
 
-    <artifactId>verify-status</artifactId>
+    <artifactId>verify-status-reporter</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>hpi</packaging>
 
-    <name>Verify Status Plugin</name>
-    <url>https://wiki.jenkins-ci.org/display/JENKINS/verify-status</url>
+    <name>Verify Status Reporter Plugin</name>
+    <url>https://wiki.jenkins-ci.org/display/JENKINS/verify-status-reporter</url>
     <licenses>
         <license>
             <name>Apache License Version 2.0</name>

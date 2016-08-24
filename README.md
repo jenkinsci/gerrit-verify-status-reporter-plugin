@@ -1,17 +1,23 @@
-# verify-status
-The Jenkins verify-status plugin supports the functionality of the Gerrit verify-status plugin.
+# Overview
+The Jenkins verify-status-reporter plugin allows Jenkins to publish test reports
+to Gerrit instances that are using the [Gerrit verify-status plugin].
 
 # Quick Start Guide
-This is a quick start guide on how to setup and configure Gerrit and Jenkins to get a complete CI workflow.
+This is a quick start guide on how to quickly install and configure Gerrit and
+Jenkins so that Jenkins can report job results to Gerrit.
 
-## Install [Gerrit verify-status plugin]
+_NOTE_: This Guide is meant for then impatient hacker who doesn't want to read
+an endless streams of documentation and the developers who do don't want to
+write it :)  
+
+## Install Gerrit verify-status plugin
   * Setup database connection info in gerrit.config
 ```
 [plugin "verify-status"]
   dbType = h2
   database = /home/joe/gerrit_testsite/db/CiDB
 ```
-  * Copy the plugin jar file into $site/plugins directory
+  * Copy the verify-status.jar file into the Gerrit $site/plugins directory
   * Stop Gerrit
   * Run `java -jar gerrit.war init -d $site` to [initialize the database]
   * Start Gerrit
@@ -31,12 +37,13 @@ Save settings
 Gerrit -> People -> List Groups -> Non-Interactive Users
 Add 'Jenkins' user to the group
 ```  
-  * Create an http password for the 'Jenkins' user
+  * Create an http password for the 'Jenkins' user.
 ```
 Settings -> HTTP Password -> Generate Password
 ```  
-## Install Jenkins verify status plugin
-  * Install the jar file.
+
+## Install Jenkins verify-status-reporter plugin
+  * Install this plugin using the Jenkins plugin manager.
   * Configure the Gerrit trigger global config to connect to the Gerrit instance.
 ```
 Jenkins -> Manage Jenkins -> Gerrit Trigger
@@ -56,11 +63,14 @@ Save settings
 
 ## Testing
   * Login into Gerrit with any user.
-  * View any change.
-  * Reply to a change with a 'recheck' message.
-  * After Jenkins has completed running the job it will send a report to Gerrit.
-  * The report should now appear on the Gerrit UI.
+  * View any patchset.
+  * Reply to a patchset with a 'recheck' message (this should auotmatically kick off a jenkins build).
+  * After Jenkins has completed running the build it will send a verification report to Gerrit.
+  * The report should now appear on the Gerrit UI (on replied to patchset).
 
+## Debugging
+  * Check the Gerrit logs and Jenkins logs to see if there are any errors
+  * Communication between Gerrit and Jenkins are done using REST APIs so make sure the security is setup so that one server can communicate with the other.
 
 [Gerrit verify-status plugin]: https://gerrit.googlesource.com/plugins/verify-status/+/master/src/main/resources/Documentation/about.md
 [initialize the database]: https://gerrit.googlesource.com/plugins/verify-status/+/master/src/main/resources/Documentation/database.md
