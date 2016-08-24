@@ -1,0 +1,8 @@
+<!--
+  This view is used to render the installed plugins page.
+-->
+<div>
+    This plugin allows posting test results to
+    <a href="https://www.gerritcodereview.com">Gerrit</a> when using the
+    <a href="https://gerrit.googlesource.com/plugins/verify-status">Gerrit Verify Status plugin</a>.
+</div>

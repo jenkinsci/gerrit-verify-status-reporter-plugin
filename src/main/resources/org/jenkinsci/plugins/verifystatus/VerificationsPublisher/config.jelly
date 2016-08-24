@@ -1,0 +1,35 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
+    <!--
+      This jelly script is used for per-project configuration.
+
+      See global.jelly for a general discussion about jelly script.
+    -->
+
+    <!--
+      Creates a text field that shows the value of the "path" property.
+      When submitted, it will be passed to the corresponding constructor parameter.
+    -->
+    <f:section title="${%jenkins.plugin.settings.section.verifystatus.name}">
+        <f:entry title="${%jenkins.plugin.settings.verifystatus.name}" field="verifyStatusName">
+            <f:textbox default=""/>
+        </f:entry>
+        <f:entry title="${%jenkins.plugin.settings.verifystatus.url}" field="verifyStatusURL">
+            <f:textbox default=""/>
+        </f:entry>
+        <f:entry title="${%jenkins.plugin.settings.verifystatus.abstain}" field="verifyStatusAbstain"
+                 description="${%jenkins.plugin.settings.verifystatus.abstain.description}">
+            <f:checkbox default="false"/>
+        </f:entry>
+        <f:entry title="${%jenkins.plugin.settings.verifystatus.comment}" field="verifyStatusComment">
+            <f:textbox default=""/>
+        </f:entry>
+        <f:entry title="${%jenkins.plugin.settings.verifystatus.reporter}" field="verifyStatusReporter">
+            <f:textbox default=""/>
+        </f:entry>
+        <f:entry title="${%jenkins.plugin.settings.verifystatus.category}" field="verifyStatusCategory">
+            <f:textbox default=""/>
+        </f:entry>
+    </f:section>
+
+</j:jelly>
