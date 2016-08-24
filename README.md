@@ -2,11 +2,16 @@
 The Jenkins verify-status-reporter plugin allows Jenkins to publish test reports
 to Gerrit instances that are using the [Gerrit verify-status plugin].
 
+# Reqiurements
+ * Gerrit ver 2.13+
+ * Jenkins ver 1.580.1+
+ * Jenkins [Gerrit Trigger Plugin]
+
 # Quick Start Guide
 This is a quick start guide on how to quickly install and configure Gerrit and
 Jenkins so that Jenkins can report job results to Gerrit.
 
-_NOTE_: This Guide is meant for then impatient hacker who doesn't want to read
+_NOTE_: This Guide is meant for the impatient hacker who doesn't want to read
 an endless streams of documentation and the developers who do don't want to
 write it :)  
 
@@ -43,7 +48,8 @@ Settings -> HTTP Password -> Generate Password
 ```  
 
 ## Install Jenkins verify-status-reporter plugin
-  * Install this plugin using the Jenkins plugin manager.
+  * Install the Jenkins Gerrit trigger plugin using the Jenkins plugin manager.
+  * Install this plugin plugin.
   * Configure the Gerrit trigger global config to connect to the Gerrit instance.
 ```
 Jenkins -> Manage Jenkins -> Gerrit Trigger
@@ -72,6 +78,7 @@ Save settings
   * Check the Gerrit logs and Jenkins logs to see if there are any errors
   * Communication between Gerrit and Jenkins are done using REST APIs so make sure the security is setup so that one server can communicate with the other.
 
+[Gerrit Trigger Plugin]: https://wiki.jenkins-ci.org/display/JENKINS/Gerrit+Trigger
 [Gerrit verify-status plugin]: https://gerrit.googlesource.com/plugins/verify-status/+/master/src/main/resources/Documentation/about.md
 [initialize the database]: https://gerrit.googlesource.com/plugins/verify-status/+/master/src/main/resources/Documentation/database.md
 [Configure access controls]: http://imgur.com/fs4jEJu
