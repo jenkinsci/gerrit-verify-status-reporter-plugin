@@ -174,7 +174,7 @@ public class VerificationsPublisher extends Publisher {
       if (!reporter.isEmpty()) {
         data.reporter = reporter;
       } else {
-        data.reporter = "Jenkins";
+        data.reporter = gerritConfig.getGerritHttpUserName();
       }
       data.comment = "";
       String inComment = getVerifyStatusComment();
