@@ -4,8 +4,8 @@ to Gerrit instances that are using the [Gerrit verify-status plugin].
 
 # Reqiurements
  * Gerrit ver 2.13+
- * Jenkins ver 1.580.1+
- * Jenkins [Gerrit Trigger Plugin]
+ * Jenkins ver 1.625.3+
+ * Jenkins [Gerrit Trigger Plugin] ver 2.22.0+
 
 # Quick Start Guide
 This is a quick start guide on how to quickly install and configure Gerrit and
@@ -49,7 +49,7 @@ Settings -> HTTP Password -> Generate Password
 
 ## Install Jenkins verify-status-reporter plugin
   * Install the Jenkins Gerrit trigger plugin using the Jenkins plugin manager.
-  * Install this plugin plugin.
+  * Install this plugin.
   * Configure the Gerrit trigger global config to connect to the Gerrit instance.
 ```
 Jenkins -> Manage Jenkins -> Gerrit Trigger
