@@ -37,7 +37,7 @@ import java.util.Set;
 public interface RevisionApi {
   void delete() throws RestApiException;
   void review(ReviewInput in) throws RestApiException;
-  // for verify-status plugin
+  // for verify-status-reporter plugin
   VerifyStatusApi verifyStatus() throws RestApiException;
   
 
@@ -77,7 +77,7 @@ public interface RevisionApi {
       throw new NotImplementedException();
     }
 
-    // for verify-status plugin
+    // for verify-status-reporter plugin
     @Override
     public VerifyStatusApi verifyStatus() throws RestApiException {
       throw new NotImplementedException();

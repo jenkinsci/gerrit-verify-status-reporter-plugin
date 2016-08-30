@@ -186,10 +186,12 @@ public class VerificationsPublisher extends Publisher {
         data.abstain = true;
       }
       
-      // TODO: pass the special Gerrit "recheck" comment to this category
-      // Gerrit trigger does not support a GERRIT_COMMENT Env var yet.
-      // https://issues.jenkins-ci.org/browse/JENKINS-37633
-      data.category = "";
+      String replyComment = getEnvVar(build, listener, "GERRIT_EVENT_COMMENT_TEXT");
+      if (replyComment.contains("recheck")) {
+        data.category = "recheck";
+      } else {
+        data.category = "";
+      }
       String inCategory = getVerifyStatusCategory();
       if (!inCategory.isEmpty()) {
         data.category = inCategory;
