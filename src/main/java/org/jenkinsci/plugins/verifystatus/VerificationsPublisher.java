@@ -47,6 +47,8 @@ public class VerificationsPublisher extends Publisher {
   public static final String GERRIT_NAME_ENV_VAR_NAME = "GERRIT_NAME";
   public static final String 
     GERRIT_PATCHSET_NUMBER_ENV_VAR_NAME = "GERRIT_PATCHSET_NUMBER";
+  public static final String
+    GERRIT_EVENT_COMMENT_TEXT_ENV_VAR_NAME =  "GERRIT_EVENT_COMMENT_TEXT";
 
   private final String verifyStatusName;
   private final String verifyStatusURL;
@@ -142,6 +144,13 @@ public class VerificationsPublisher extends Publisher {
           Level.SEVERE);
       return false;
     }
+    // System Environment variables may not be enabled
+    String buildUrl = getEnvVar(build, listener, BUILD_URL_ENV_VAR_NAME);
+    if (buildUrl == null){
+      logMessage(listener, "jenkins.plugin.error.gerrit.sysenv.disabled",
+          Level.WARNING);
+    }
+
     GerritRestApiFactory gerritRestApiFactory = new GerritRestApiFactory();
     GerritAuthData.Basic authData =
         new GerritAuthData.Basic(gerritConfig.getGerritFrontEndUrl(),
@@ -164,11 +173,13 @@ public class VerificationsPublisher extends Publisher {
       if (jobName.isEmpty()) {
         jobName = getEnvVar(build, listener, JOB_NAME_ENV_VAR_NAME);
       }
-      String buildUrl = getVerifyStatusURL();
-      if (!buildUrl.isEmpty()) {
-        data.url = buildUrl;
+      String inBuildUrl = getVerifyStatusURL();
+      if (!inBuildUrl.isEmpty()) {
+        data.url = inBuildUrl;
       } else {
-        data.url = getEnvVar(build, listener, BUILD_URL_ENV_VAR_NAME);
+        if (buildUrl != null) {
+          data.url = buildUrl;
+        }
       }
       String reporter = getVerifyStatusReporter();
       if (!reporter.isEmpty()) {
@@ -176,7 +187,6 @@ public class VerificationsPublisher extends Publisher {
       } else {
         data.reporter = gerritConfig.getGerritHttpUserName();
       }
-      data.comment = "";
       String inComment = getVerifyStatusComment();
       if (!inComment.isEmpty()) {
         data.comment = inComment;
@@ -186,11 +196,12 @@ public class VerificationsPublisher extends Publisher {
         data.abstain = true;
       }
       
-      String replyComment = getEnvVar(build, listener, "GERRIT_EVENT_COMMENT_TEXT");
-      if (replyComment.contains("recheck")) {
+      // Gerrit event may not contain a comment message
+      // TODO: We don't want to abuse category, recheck should be a seperate entry
+      String replyComment = getEnvVar(build, listener,
+          GERRIT_EVENT_COMMENT_TEXT_ENV_VAR_NAME);
+      if (replyComment != null && replyComment.contains("recheck")) {
         data.category = "recheck";
-      } else {
-        data.category = "";
       }
       String inCategory = getVerifyStatusCategory();
       if (!inCategory.isEmpty()) {
