@@ -12,9 +12,9 @@
     <artifactId>verify-status-reporter</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>hpi</packaging>
-
     <name>Verify Status Reporter Plugin</name>
     <url>https://wiki.jenkins-ci.org/display/JENKINS/verify-status-reporter</url>
+
     <licenses>
         <license>
             <name>Apache License Version 2.0</name>
@@ -74,6 +74,20 @@
                     <compatibleSinceVersion>1.0</compatibleSinceVersion>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <failOnError>false</failOnError>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <configuration>
+                    <failOnError>false</failOnError>
+                </configuration>
+             </plugin>
         </plugins>
     </build>
 
@@ -84,11 +98,6 @@
             <version>2.22.0</version>
         </dependency>
         <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.2.2</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>18.0</version>
@@ -96,13 +105,7 @@
         <dependency>
             <groupId>com.urswolfer.gerrit.client.rest</groupId>
             <artifactId>gerrit-rest-java-client</artifactId>
-            <version>0.8.5</version>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.10</version>
-            <scope>test</scope>
+            <version>0.8.8</version>
         </dependency>
     </dependencies>
 </project>

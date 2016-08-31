@@ -19,17 +19,15 @@ package com.urswolfer.gerrit.client.rest.http.changes;
 import com.google.gerrit.extensions.api.changes.*;
 import com.google.gerrit.extensions.common.CommentInfo;
 import com.google.gerrit.extensions.common.FileInfo;
+import com.google.gerrit.extensions.restapi.BinaryResult;
 import com.google.gerrit.extensions.restapi.RestApiException;
 import com.google.gerrit.extensions.restapi.Url;
 import com.google.gson.JsonElement;
 import com.urswolfer.gerrit.client.rest.http.GerritRestClient;
-import com.urswolfer.gerrit.client.rest.http.changes.ChangeApiRestClient;
-import com.urswolfer.gerrit.client.rest.http.changes.CommentsParser;
-import com.urswolfer.gerrit.client.rest.http.changes.DiffInfoParser;
-import com.urswolfer.gerrit.client.rest.http.changes.DraftApiRestClient;
-import com.urswolfer.gerrit.client.rest.http.changes.FileApiRestClient;
-import com.urswolfer.gerrit.client.rest.http.changes.FileInfoParser;
+import com.urswolfer.gerrit.client.rest.http.util.BinaryResultUtils;
+import org.apache.http.HttpResponse;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -65,6 +63,12 @@ public class RevisionApiRestClient extends RevisionApi.NotImplemented implements
     }
 
     @Override
+    public void delete() throws RestApiException {
+        String request = getRequestPath();
+        gerritRestClient.deleteRequest(request);
+    }
+
+    @Override
     public void review(ReviewInput reviewInput) throws RestApiException {
         String request = getRequestPath() + "/review";
         String json = gerritRestClient.getGson().toJson(reviewInput);
@@ -89,9 +93,28 @@ public class RevisionApiRestClient extends RevisionApi.NotImplemented implements
     }
 
     @Override
+    public void publish() throws RestApiException {
+        String request = getRequestPath() + "/publish";
+        gerritRestClient.postRequest(request);
+    }
+
+    @Override
+    public ChangeApi rebase() throws RestApiException {
+        return rebase(new RebaseInput());
+    }
+
+    @Override
+    public ChangeApi rebase(RebaseInput in) throws RestApiException {
+        String request = getRequestPath() + "/rebase";
+        String json = gerritRestClient.getGson().toJson(in);
+        gerritRestClient.postRequest(request, json);
+        return changeApiRestClient;
+    }
+
+    @Override
     public void setReviewed(String path, boolean reviewed) throws RestApiException {
         String encodedPath = Url.encode(path);
-        String url =  String.format("/changes/%s/revisions/%s/files/%s/reviewed", changeApiRestClient.id(), revision, encodedPath);
+        String url = String.format("/changes/%s/revisions/%s/files/%s/reviewed", changeApiRestClient.id(), revision, encodedPath);
         if (reviewed) {
             gerritRestClient.putRequest(url);
         } else {
@@ -143,6 +166,17 @@ public class RevisionApiRestClient extends RevisionApi.NotImplemented implements
     @Override
     public FileApi file(String path) {
         return new FileApiRestClient(gerritRestClient, this, diffInfoParser, path);
+    }
+
+    @Override
+    public BinaryResult patch() throws RestApiException {
+        String request = getRequestPath() + "/patch";
+        try {
+            HttpResponse response = gerritRestClient.request(request, null, GerritRestClient.HttpVerb.GET);
+            return BinaryResultUtils.createBinaryResult(response);
+        } catch (IOException e) {
+            throw new RestApiException("Failed to get patch.", e);
+        }
     }
 
     protected String getRequestPath() {
