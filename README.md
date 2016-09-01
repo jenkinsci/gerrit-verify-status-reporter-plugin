@@ -4,8 +4,8 @@ to Gerrit instances that are using the [Gerrit verify-status plugin].
 
 # Reqiurements
  * Gerrit ver 2.13+
- * Jenkins ver 1.580.1+
- * Jenkins [Gerrit Trigger Plugin]
+ * Jenkins ver 1.625.3+
+ * Jenkins [Gerrit Trigger Plugin] ver 2.20.0+
 
 # Quick Start Guide
 This is a quick start guide on how to quickly install and configure Gerrit and
@@ -49,8 +49,8 @@ Settings -> HTTP Password -> Generate Password
 
 ## Install Jenkins verify-status-reporter plugin
   * Install the Jenkins Gerrit trigger plugin using the Jenkins plugin manager.
-  * Install this plugin plugin.
-  * Configure the Gerrit trigger global config to connect to the Gerrit instance.
+  * Install this plugin.
+  * Configure the Gerrit trigger global config to connect to a Gerrit instance.
 ```
 Jenkins -> Manage Jenkins -> Gerrit Trigger
 ```
@@ -62,9 +62,10 @@ Enable Environment variables
 Save settings
 ```
   * Create a new Jenkins job
-  * Add a regular expression [Gerrit trigger event].  Make it trigger on 'recheck'.
-  * Configure the Gerrit project settings. 
-  * Add a 'Post a verification to Gerrit' [post-build action]. You can leave the [verification parameters] blank.
+  * Setup a Gerrit trigger event and set all of the paramters to [Human readable]
+  * Add a [regular expression trigger] event.  Make it trigger on 'recheck'.
+  * Configure the Gerrit project settings.
+  * Add a 'Post a verification to Gerrit' [post-build action].  You can leave the [verification parameters] blank.
   * Save the job.
 
 ## Testing
@@ -72,19 +73,20 @@ Save settings
   * View any patchset.
   * Reply to a patchset with a 'recheck' message (this should auotmatically kick off a jenkins build).
   * After Jenkins has completed running the build it will send a verification report to Gerrit.
-  * The report should now appear on the Gerrit UI (on replied to patchset).
+  * The report should now appear on the Gerrit UI (on the replied to patchset).
 
 ## Debugging
   * Check the Gerrit logs and Jenkins logs to see if there are any errors
-  * Communication between Gerrit and Jenkins are done using REST APIs so make sure the security is setup so that one server can communicate with the other.
+  * Communication between Gerrit and Jenkins are done using SSH and REST APIs so make sure the security is setup so that one server can communicate with the other.
 
 [Gerrit Trigger Plugin]: https://wiki.jenkins-ci.org/display/JENKINS/Gerrit+Trigger
 [Gerrit verify-status plugin]: https://gerrit.googlesource.com/plugins/verify-status/+/master/src/main/resources/Documentation/about.md
 [initialize the database]: https://gerrit.googlesource.com/plugins/verify-status/+/master/src/main/resources/Documentation/database.md
 [Configure access controls]: http://imgur.com/fs4jEJu
 [Gerrit Rest API]: http://imgur.com/hRo40Vo
-[Gerrit trigger event]: http://imgur.com/VaZTEO6
+[regular expression trigger]: http://imgur.com/VaZTEO6
 [post-build action]: http://imgur.com/EXMhHal
 [enable environment variables]: http://imgur.com/sDWN5J3
 [Configure access controls]: http://imgur.com/fs4jEJu
 [verification parameters]: http://imgur.com/u1iwCBm
+[Human readable]: https://imgur.com/a/h8B4z
