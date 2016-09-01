@@ -14,19 +14,13 @@
 
 package com.google.gerrit.extensions.api.changes;
 
-import com.google.gerrit.extensions.api.changes.ChangeApi;
-import com.google.gerrit.extensions.api.changes.CherryPickInput;
-import com.google.gerrit.extensions.api.changes.CommentApi;
-import com.google.gerrit.extensions.api.changes.DraftApi;
-import com.google.gerrit.extensions.api.changes.DraftInput;
-import com.google.gerrit.extensions.api.changes.FileApi;
-import com.google.gerrit.extensions.api.changes.RebaseInput;
-import com.google.gerrit.extensions.api.changes.ReviewInput;
-//import com.google.gerrit.extensions.api.changes.RevisionApi;
-import com.google.gerrit.extensions.api.changes.SubmitInput;
+import com.google.gerrit.extensions.client.SubmitType;
+import com.google.gerrit.extensions.common.ActionInfo;
 import com.google.gerrit.extensions.common.CommentInfo;
 import com.google.gerrit.extensions.common.FileInfo;
 import com.google.gerrit.extensions.common.MergeableInfo;
+import com.google.gerrit.extensions.common.TestSubmitRuleInput;
+import com.google.gerrit.extensions.restapi.BinaryResult;
 import com.google.gerrit.extensions.restapi.NotImplementedException;
 import com.google.gerrit.extensions.restapi.RestApiException;
 
@@ -36,19 +30,18 @@ import java.util.Set;
 
 public interface RevisionApi {
   void delete() throws RestApiException;
+
   void review(ReviewInput in) throws RestApiException;
   // for verify-status-reporter plugin
   VerifyStatusApi verifyStatus() throws RestApiException;
-  
 
-  /** {@code submit} with {@link SubmitInput#waitForMerge} set to true. */
   void submit() throws RestApiException;
   void submit(SubmitInput in) throws RestApiException;
   void publish() throws RestApiException;
   ChangeApi cherryPick(CherryPickInput in) throws RestApiException;
   ChangeApi rebase() throws RestApiException;
   ChangeApi rebase(RebaseInput in) throws RestApiException;
-  boolean canRebase();
+  boolean canRebase() throws RestApiException;
 
   void setReviewed(String path, boolean reviewed) throws RestApiException;
   Set<String> reviewed() throws RestApiException;
@@ -62,29 +55,42 @@ public interface RevisionApi {
   Map<String, List<CommentInfo>> comments() throws RestApiException;
   Map<String, List<CommentInfo>> drafts() throws RestApiException;
 
+  List<CommentInfo> commentsAsList() throws RestApiException;
+  List<CommentInfo> draftsAsList() throws RestApiException;
+
   DraftApi createDraft(DraftInput in) throws RestApiException;
   DraftApi draft(String id) throws RestApiException;
 
   CommentApi comment(String id) throws RestApiException;
 
   /**
+   * Returns patch of revision.
+   */
+  BinaryResult patch() throws RestApiException;
+
+  Map<String, ActionInfo> actions() throws RestApiException;
+
+  SubmitType submitType() throws RestApiException;
+  SubmitType testSubmitType(TestSubmitRuleInput in) throws RestApiException;
+
+  /**
    * A default implementation which allows source compatibility
    * when adding new methods to the interface.
    **/
-  public class NotImplemented implements RevisionApi {
+  class NotImplemented implements RevisionApi {
     @Override
     public void delete() throws RestApiException {
+      throw new NotImplementedException();
+    }
+
+    @Override
+    public void review(ReviewInput in) throws RestApiException {
       throw new NotImplementedException();
     }
 
     // for verify-status-reporter plugin
     @Override
     public VerifyStatusApi verifyStatus() throws RestApiException {
-      throw new NotImplementedException();
-    }
-    
-    @Override
-    public void review(ReviewInput in) throws RestApiException {
       throw new NotImplementedException();
     }
 
@@ -164,6 +170,16 @@ public interface RevisionApi {
     }
 
     @Override
+    public List<CommentInfo> commentsAsList() throws RestApiException {
+      throw new NotImplementedException();
+    }
+
+    @Override
+    public List<CommentInfo> draftsAsList() throws RestApiException {
+      throw new NotImplementedException();
+    }
+
+    @Override
     public Map<String, List<CommentInfo>> drafts() throws RestApiException {
       throw new NotImplementedException();
     }
@@ -180,6 +196,27 @@ public interface RevisionApi {
 
     @Override
     public CommentApi comment(String id) throws RestApiException {
+      throw new NotImplementedException();
+    }
+
+    @Override
+    public BinaryResult patch() throws RestApiException {
+      throw new NotImplementedException();
+    }
+
+    @Override
+    public Map<String, ActionInfo> actions() throws RestApiException {
+      throw new NotImplementedException();
+    }
+
+    @Override
+    public SubmitType submitType() throws RestApiException {
+      throw new NotImplementedException();
+    }
+
+    @Override
+    public SubmitType testSubmitType(TestSubmitRuleInput in)
+        throws RestApiException {
       throw new NotImplementedException();
     }
   }

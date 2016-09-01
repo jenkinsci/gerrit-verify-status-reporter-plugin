@@ -1,6 +1,7 @@
 <!--
   This view is used to render the installed plugins page.
 -->
+<?jelly escape-by-default='true'?>
 <div>
     This plugin allows posting test results to
     <a href="https://www.gerritcodereview.com">Gerrit</a> when using the
