@@ -30,6 +30,9 @@
         <f:entry title="${%jenkins.plugin.settings.verifystatus.category}" field="verifyStatusCategory">
             <f:textbox default=""/>
         </f:entry>
+        <f:entry title="${%jenkins.plugin.settings.verifystatus.rerun}" field="verifyStatusRerun">
+            <f:textbox default=""/>
+        </f:entry>
     </f:section>
 
 </j:jelly>
