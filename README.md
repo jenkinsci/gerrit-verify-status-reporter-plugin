@@ -65,7 +65,8 @@ Save settings
   * Setup a Gerrit trigger event and set all of the paramters to [Human readable]
   * Add a [regular expression trigger] event.  Make it trigger on 'recheck'.
   * Configure the Gerrit project settings.
-  * Add a 'Post a verification to Gerrit' [post-build action].  You can leave the [verification parameters] blank.
+  * Add a 'Post a verification to Gerrit' [post-build action].
+  * Set the Rerun Comment to 'recheck', you can leave the other [verification parameters] blank.
   * Save the job.
 
 ## Testing

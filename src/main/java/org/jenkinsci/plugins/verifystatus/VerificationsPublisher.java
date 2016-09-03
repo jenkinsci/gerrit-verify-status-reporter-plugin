@@ -45,7 +45,7 @@ public class VerificationsPublisher extends Publisher {
   public static final String
     GERRIT_CHANGE_NUMBER_ENV_VAR_NAME ="GERRIT_CHANGE_NUMBER";
   public static final String GERRIT_NAME_ENV_VAR_NAME = "GERRIT_NAME";
-  public static final String 
+  public static final String
     GERRIT_PATCHSET_NUMBER_ENV_VAR_NAME = "GERRIT_PATCHSET_NUMBER";
   public static final String
     GERRIT_EVENT_COMMENT_TEXT_ENV_VAR_NAME =  "GERRIT_EVENT_COMMENT_TEXT";
@@ -56,21 +56,25 @@ public class VerificationsPublisher extends Publisher {
   private final String verifyStatusComment;
   private final String verifyStatusReporter;
   private final String verifyStatusCategory;
+  private final String verifyStatusRerun;
 
 
   @DataBoundConstructor
   public VerificationsPublisher(String verifyStatusName, String verifyStatusURL,
       boolean verifyStatusAbstain, String verifyStatusComment,
-      String verifyStatusReporter, String verifyStatusCategory) {
+      String verifyStatusReporter, String verifyStatusCategory,
+      String verifyStatusRerun) {
 
     this.verifyStatusName = MoreObjects.firstNonNull(verifyStatusName, "");
     this.verifyStatusURL = MoreObjects.firstNonNull(verifyStatusURL, "");
     this.verifyStatusAbstain = verifyStatusAbstain;
     this.verifyStatusComment = MoreObjects.firstNonNull(verifyStatusComment, "");
-    this.verifyStatusReporter = 
+    this.verifyStatusReporter =
         MoreObjects.firstNonNull(verifyStatusReporter, "Jenkins");
-    this.verifyStatusCategory = 
+    this.verifyStatusCategory =
         MoreObjects.firstNonNull(verifyStatusCategory, "");
+    this.verifyStatusRerun =
+        MoreObjects.firstNonNull(verifyStatusRerun, "");
   }
 
   public String getVerifyStatusName() {
@@ -97,12 +101,16 @@ public class VerificationsPublisher extends Publisher {
     return verifyStatusCategory;
   }
 
+  public String getVerifyStatusRerun() {
+    return verifyStatusRerun;
+  }
+
   // publish report after job completes to get correct duration
   @Override
   public boolean needsToRunAfterFinalized() {
     return true;
   }
-  
+
   @Override
   public boolean perform(AbstractBuild build, Launcher launcher,
       BuildListener listener) throws IOException, InterruptedException {
@@ -195,13 +203,13 @@ public class VerificationsPublisher extends Publisher {
       if (getVerifyStatusAbstain()) {
         data.abstain = true;
       }
-      
+
       // Gerrit event may not contain a comment message
-      // TODO: We don't want to abuse category, recheck should be a seperate entry
       String replyComment = getEnvVar(build, listener,
           GERRIT_EVENT_COMMENT_TEXT_ENV_VAR_NAME);
-      if (replyComment != null && replyComment.contains("recheck")) {
-        data.category = "recheck";
+      if (replyComment != null &&
+          replyComment.contains(getVerifyStatusRerun().trim())) {
+        data.rerun = true;
       }
       String inCategory = getVerifyStatusCategory();
       if (!inCategory.isEmpty()) {

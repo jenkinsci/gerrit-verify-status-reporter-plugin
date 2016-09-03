@@ -21,6 +21,7 @@ public class VerificationInfo {
   public String url;
   public Short value;
   public boolean abstain;
+  public boolean rerun;
   public String reporter;
   public String comment;
   public Timestamp granted;
