@@ -17,10 +17,6 @@
         <f:entry title="${%jenkins.plugin.settings.verifystatus.url}" field="verifyStatusURL">
             <f:textbox default=""/>
         </f:entry>
-        <f:entry title="${%jenkins.plugin.settings.verifystatus.abstain}" field="verifyStatusAbstain"
-                 description="${%jenkins.plugin.settings.verifystatus.abstain.description}">
-            <f:checkbox default="false"/>
-        </f:entry>
         <f:entry title="${%jenkins.plugin.settings.verifystatus.comment}" field="verifyStatusComment">
             <f:textbox default=""/>
         </f:entry>

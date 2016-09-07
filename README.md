@@ -69,6 +69,11 @@ Save settings
   * Set the Rerun Comment to 'recheck', you can leave the other [verification parameters] blank.
   * Save the job.
 
+
+_Note_: The job abstain and value data are automatically determined:
+* abstain is true if the Gerrit Trigger is set to SilentMode or any SkipVote parameter is enable.
+* value is set to +1 for pass, -1 for fail and 0 for unstable result.
+
 ## Testing
   * Login into Gerrit with any user.
   * View any patchset.

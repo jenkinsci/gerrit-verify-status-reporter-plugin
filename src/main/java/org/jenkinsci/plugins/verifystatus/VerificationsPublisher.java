@@ -10,6 +10,7 @@ import com.google.gerrit.extensions.restapi.RestApiException;
 import com.sonyericsson.hudson.plugins.gerrit.trigger.GerritManagement;
 import com.sonyericsson.hudson.plugins.gerrit.trigger.config.IGerritHudsonTriggerConfig;
 import com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.GerritTrigger;
+import com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.data.SkipVote;
 import com.urswolfer.gerrit.client.rest.GerritAuthData;
 import com.urswolfer.gerrit.client.rest.GerritRestApiFactory;
 
@@ -23,6 +24,7 @@ import hudson.model.Result;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
+import hudson.triggers.Trigger;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -52,7 +54,6 @@ public class VerificationsPublisher extends Publisher {
 
   private final String verifyStatusName;
   private final String verifyStatusURL;
-  private final boolean verifyStatusAbstain;
   private final String verifyStatusComment;
   private final String verifyStatusReporter;
   private final String verifyStatusCategory;
@@ -61,13 +62,11 @@ public class VerificationsPublisher extends Publisher {
 
   @DataBoundConstructor
   public VerificationsPublisher(String verifyStatusName, String verifyStatusURL,
-      boolean verifyStatusAbstain, String verifyStatusComment,
-      String verifyStatusReporter, String verifyStatusCategory,
-      String verifyStatusRerun) {
+      String verifyStatusComment, String verifyStatusReporter,
+      String verifyStatusCategory, String verifyStatusRerun) {
 
     this.verifyStatusName = MoreObjects.firstNonNull(verifyStatusName, "");
     this.verifyStatusURL = MoreObjects.firstNonNull(verifyStatusURL, "");
-    this.verifyStatusAbstain = verifyStatusAbstain;
     this.verifyStatusComment = MoreObjects.firstNonNull(verifyStatusComment, "");
     this.verifyStatusReporter =
         MoreObjects.firstNonNull(verifyStatusReporter, "Jenkins");
@@ -83,10 +82,6 @@ public class VerificationsPublisher extends Publisher {
 
   public String getVerifyStatusURL() {
     return verifyStatusURL;
-  }
-
-  public boolean getVerifyStatusAbstain() {
-    return verifyStatusAbstain;
   }
 
   public String getVerifyStatusComment() {
@@ -109,6 +104,19 @@ public class VerificationsPublisher extends Publisher {
   @Override
   public boolean needsToRunAfterFinalized() {
     return true;
+  }
+
+  private GerritTrigger getGerritTrigger(AbstractBuild<?, ?> build) {
+    AbstractProject<?,?> project = build.getProject();
+    Iterator<?> it = project.getTriggers().values().iterator();
+    while (it.hasNext()) {
+      Trigger<?> t = (Trigger<?>) it.next();
+      if (t.getClass().equals(GerritTrigger.class)) {
+        GerritTrigger gerritTrigger = (GerritTrigger) t;
+        return gerritTrigger;
+      }
+    }
+    return null;
   }
 
   @Override
@@ -200,8 +208,15 @@ public class VerificationsPublisher extends Publisher {
         data.comment = inComment;
       }
       data.duration = build.getDurationString();
-      if (getVerifyStatusAbstain()) {
-        data.abstain = true;
+
+      // let Gerrit know whether this job abstained from voting.
+      GerritTrigger gerritTrigger = getGerritTrigger(build);
+      if (gerritTrigger != null) {
+        SkipVote sv = gerritTrigger.getSkipVote();
+        if (gerritTrigger.isSilentMode() || sv.isOnFailed()
+            || sv.isOnNotBuilt() || sv.isOnSuccessful() || sv.isOnUnstable()) {
+          data.abstain = true;
+        }
       }
 
       // Gerrit event may not contain a comment message
