@@ -9,12 +9,12 @@
         <relativePath />
     </parent>
 
-    <artifactId>verify-status-reporter</artifactId>
+    <artifactId>gerrit-verify-status-reporter</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>hpi</packaging>
-    <name>Verify Status Reporter Plugin</name>
+    <name>Gerrit Verify Status Reporter Plugin</name>
     <description>Post test reports to Gerrit</description>
-    <url>https://wiki.jenkins-ci.org/display/JENKINS/verify-status-reporter</url>
+    <url>https://wiki.jenkins-ci.org/display/JENKINS/gerrit-verify-status-reporter</url>
 
     <licenses>
         <license>
@@ -42,10 +42,10 @@
     </properties>
 
     <scm>
-        <connection>scm:git:ssh://github.com/jenkinsci/${project.artifactId}-plugin.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/jenkinsci/${project.artifactId}-plugin.git
+        <connection>scm:git:ssh://github.com/jenkinsci/${project.artifactId}.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/jenkinsci/${project.artifactId}.git
         </developerConnection>
-        <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
+        <url>https://github.com/jenkinsci/${project.artifactId}</url>
     </scm>
 
     <repositories>
