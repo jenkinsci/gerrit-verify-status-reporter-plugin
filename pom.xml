@@ -42,10 +42,10 @@
     </properties>
 
     <scm>
-        <connection>scm:git:ssh://github.com/jenkinsci/${project.artifactId}.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/jenkinsci/${project.artifactId}.git
+        <connection>scm:git:ssh://github.com/jenkinsci/${project.artifactId}-plugin.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/jenkinsci/${project.artifactId}-plugin.git
         </developerConnection>
-        <url>https://github.com/jenkinsci/${project.artifactId}</url>
+        <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
     </scm>
 
     <repositories>
