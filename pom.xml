@@ -65,6 +65,31 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.urswolfer.gerrit.client.rest</groupId>
+                                    <artifactId>gerrit-rest-java-client</artifactId>
+                                    <version>0.8.8</version>
+                                    <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                                    <includes>**/*</includes>
+                                    <excludes>**/RevisionApi*.class</excludes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3.2</version>
                 <configuration>
@@ -72,7 +97,7 @@
                     <target>1.7</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
-              </plugin>
+            </plugin>
             <plugin>
                 <groupId>org.jenkins-ci.tools</groupId>
                 <artifactId>maven-hpi-plugin</artifactId>
@@ -106,6 +131,7 @@
             <groupId>com.urswolfer.gerrit.client.rest</groupId>
             <artifactId>gerrit-rest-java-client</artifactId>
             <version>0.8.8</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>
