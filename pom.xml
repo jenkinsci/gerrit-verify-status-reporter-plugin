@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>gerrit-verify-status-reporter</artifactId>
-  <version>0.0.2</version>
+  <version>0.0.3-SNAPSHOT</version>
   <packaging>hpi</packaging>
   <name>Gerrit Verify Status Reporter Plugin</name>
   <description>Post test reports to Gerrit</description>
@@ -49,7 +49,7 @@
     <developerConnection>scm:git:ssh://git@github.com/jenkinsci/${project.artifactId}.git
     </developerConnection>
     <url>https://github.com/jenkinsci/${project.artifactId}</url>
-    <tag>gerrit-verify-status-reporter-0.0.2</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <repositories>
