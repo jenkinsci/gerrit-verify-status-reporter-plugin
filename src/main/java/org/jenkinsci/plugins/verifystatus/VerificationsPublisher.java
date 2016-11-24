@@ -135,6 +135,9 @@ public class VerificationsPublisher extends Publisher implements SimpleBuildStep
     Result result = build.getResult();
     // do not report results for aborted builds
     // TODO: possibly allow saving report even if build did not complete?
+    if (result == Result.ABORTED) {
+        return;
+    }
 
     // Prepare Gerrit REST API client
     // Check Gerrit configuration is available
