@@ -16,17 +16,26 @@ import com.urswolfer.gerrit.client.rest.GerritRestApiFactory;
 
 import hudson.EnvVars;
 import hudson.Extension;
+import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
+import hudson.model.Job;
 import hudson.model.Result;
+import hudson.model.Run;
+import jenkins.model.ParameterizedJobMixIn;
+import hudson.model.TaskListener;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
+import jenkins.tasks.SimpleBuildStep;
 import hudson.triggers.Trigger;
 
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
+
+import org.jenkinsci.Symbol;
 
 import java.io.IOException;
 import java.util.*;
@@ -35,7 +44,7 @@ import java.util.logging.Logger;
 
 import static org.jenkinsci.plugins.verifystatus.util.Localization.getLocalized;
 
-public class VerificationsPublisher extends Publisher {
+public class VerificationsPublisher extends Publisher implements SimpleBuildStep{
 
   public static final String GERRIT_FILE_DELIMITER = "/";
   public static final String EMPTY_STR = "";
@@ -58,7 +67,7 @@ public class VerificationsPublisher extends Publisher {
   private final String verifyStatusReporter;
   private final String verifyStatusCategory;
   private final String verifyStatusRerun;
-
+  private Short verifyStatusValue;
 
   @DataBoundConstructor
   public VerificationsPublisher(String verifyStatusName, String verifyStatusURL,
@@ -100,65 +109,61 @@ public class VerificationsPublisher extends Publisher {
     return verifyStatusRerun;
   }
 
+  public Short getVerifyStatusValue() {
+    return verifyStatusValue;
+  }
+  @DataBoundSetter
+  public void setVerifyStatusValue(Short value) {
+    this.verifyStatusValue=value;
+  }
   // publish report after job completes to get correct duration
   @Override
   public boolean needsToRunAfterFinalized() {
     return true;
   }
 
-  private GerritTrigger getGerritTrigger(AbstractBuild<?, ?> build) {
-    AbstractProject<?,?> project = build.getProject();
-    Iterator<?> it = project.getTriggers().values().iterator();
-    while (it.hasNext()) {
-      Trigger<?> t = (Trigger<?>) it.next();
-      if (t.getClass().equals(GerritTrigger.class)) {
-        GerritTrigger gerritTrigger = (GerritTrigger) t;
-        return gerritTrigger;
-      }
-    }
-    return null;
+  private GerritTrigger getGerritTrigger(Run<?, ?> build) {
+    Job<?,?> project = build.getParent();
+    return (GerritTrigger) ParameterizedJobMixIn.getTrigger(project, GerritTrigger.class);
   }
 
   @Override
-  public boolean perform(AbstractBuild build, Launcher launcher,
-      BuildListener listener) throws IOException, InterruptedException {
+  public void perform(Run<?,?> build, FilePath path, Launcher launcher,
+      TaskListener listener) throws IOException, InterruptedException {
 
     Result result = build.getResult();
     // do not report results for aborted builds
     // TODO: possibly allow saving report even if build did not complete?
-    if (!result.isCompleteBuild()) {
-      return true;
-    }
 
     // Prepare Gerrit REST API client
     // Check Gerrit configuration is available
     String gerritNameEnvVar =
         getEnvVar(build, listener, GERRIT_NAME_ENV_VAR_NAME);
-    GerritTrigger trigger = GerritTrigger.getTrigger(build.getProject());
+    GerritTrigger trigger = getGerritTrigger(build);
     String gerritServerName = gerritNameEnvVar != null ? gerritNameEnvVar
         : trigger != null ? trigger.getServerName() : null;
     if (gerritServerName == null) {
       logMessage(listener, "jenkins.plugin.error.gerrit.server.empty",
           Level.SEVERE);
-      return false;
+      return;
     }
     IGerritHudsonTriggerConfig gerritConfig =
         GerritManagement.getConfig(gerritServerName);
     if (gerritConfig == null) {
       logMessage(listener, "jenkins.plugin.error.gerrit.config.empty",
           Level.SEVERE);
-      return false;
+      return;
     }
 
     if (!gerritConfig.isUseRestApi()) {
       logMessage(listener, "jenkins.plugin.error.gerrit.restapi.off",
           Level.SEVERE);
-      return false;
+      return;
     }
     if (gerritConfig.getGerritHttpUserName() == null) {
       logMessage(listener, "jenkins.plugin.error.gerrit.user.empty",
           Level.SEVERE);
-      return false;
+      return;
     }
     // System Environment variables may not be enabled
     String buildUrl = getEnvVar(build, listener, BUILD_URL_ENV_VAR_NAME);
@@ -231,13 +236,19 @@ public class VerificationsPublisher extends Publisher {
         data.category = inCategory;
       }
 
+      if (result != null) {
       // determine the vote value from build result
-      if (result.isWorseOrEqualTo(Result.FAILURE)) {
-        data.value = -1;
-      } else if (result == Result.UNSTABLE) {
-        data.value = 0;
+        if (result.isWorseOrEqualTo(Result.FAILURE)) {
+          data.value = -1;
+        } else if (result == Result.UNSTABLE) {
+          data.value = 0;
+        } else {
+          data.value = 1;
+        }
+      } else if (verifyStatusValue != null) {
+	data.value = verifyStatusValue;
       } else {
-        data.value = 1;
+	data.value = 0;
       }
 
       // Post verification
@@ -251,19 +262,19 @@ public class VerificationsPublisher extends Publisher {
       listener.getLogger()
           .println("Unable to post verification: " + e.getMessage());
       LOGGER.severe("Unable to post verification: " + e.getMessage());
-      return false;
+      return;
     }
 
-    return true;
+    return;
   }
 
-  private String getEnvVar(AbstractBuild build, BuildListener listener,
+  private String getEnvVar(Run build, TaskListener listener,
       String name) throws IOException, InterruptedException {
     EnvVars envVars = build.getEnvironment(listener);
     return envVars.get(name);
   }
 
-  private void logMessage(BuildListener listener, String message, Level l,
+  private void logMessage(TaskListener listener, String message, Level l,
       Object... params) {
     message = getLocalized(message, params);
     if (listener != null) { // it can be it tests
@@ -291,6 +302,7 @@ public class VerificationsPublisher extends Publisher {
    */
   @Extension // This indicates to Jenkins that this is an implementation of an
              // extension point.
+  @Symbol("gerritverificationpublisher")
   public static final class DescriptorImpl
       extends BuildStepDescriptor<Publisher> {
 
