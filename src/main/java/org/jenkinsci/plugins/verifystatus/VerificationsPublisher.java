@@ -11,6 +11,7 @@ import com.sonyericsson.hudson.plugins.gerrit.trigger.GerritManagement;
 import com.sonyericsson.hudson.plugins.gerrit.trigger.config.IGerritHudsonTriggerConfig;
 import com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.GerritTrigger;
 import com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.data.SkipVote;
+import com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.GerritUserCause;
 import com.urswolfer.gerrit.client.rest.GerritAuthData;
 import com.urswolfer.gerrit.client.rest.GerritRestApiFactory;
 
@@ -229,6 +230,9 @@ public class VerificationsPublisher extends Publisher implements SimpleBuildStep
           GERRIT_EVENT_COMMENT_TEXT_ENV_VAR_NAME);
       if (replyComment != null &&
           replyComment.contains(getVerifyStatusRerun().trim())) {
+        data.rerun = true;
+      }
+      if (build.getCause(GerritUserCause.class) != null){
         data.rerun = true;
       }
       String inCategory = getVerifyStatusCategory();
