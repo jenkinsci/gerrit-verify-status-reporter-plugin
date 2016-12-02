@@ -174,11 +174,19 @@ public class VerificationsPublisher extends Publisher {
             gerritConfig.getGerritHttpUserName(),
             gerritConfig.getGerritHttpPassword());
     GerritApi gerritApi = gerritRestApiFactory.create(authData);
+    int changeNumber;
+    int patchSetNumber;
     try {
-      int changeNumber = Integer.parseInt(
-          getEnvVar(build, listener, GERRIT_CHANGE_NUMBER_ENV_VAR_NAME));
-      int patchSetNumber = Integer.parseInt(
-          getEnvVar(build, listener, GERRIT_PATCHSET_NUMBER_ENV_VAR_NAME));
+      changeNumber = Integer.parseInt(
+        getEnvVar(build, listener, GERRIT_CHANGE_NUMBER_ENV_VAR_NAME));
+      patchSetNumber = Integer.parseInt(
+        getEnvVar(build, listener, GERRIT_PATCHSET_NUMBER_ENV_VAR_NAME));
+    } catch (NumberFormatException e) {
+      logMessage(listener, "jenkins.plugin.info.not.gerrit.triggered",
+      Level.INFO);
+      return;
+    }
+    try {
       VerifyStatusApi verifyStatusApi = gerritApi.changes().id(changeNumber)
           .revision(patchSetNumber).verifyStatus();
       logMessage(listener, "jenkins.plugin.connected.to.gerrit", Level.INFO,
