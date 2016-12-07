@@ -88,6 +88,61 @@ _Note_: The job abstain and value data are automatically determined:
 * abstain is true if the Gerrit Trigger is set to SilentMode or any SkipVote parameter is enable.
 * value is set to +1 for pass, -1 for fail and 0 for unstable result.
 
+# Setup with pipeline jobs
+
+```groovy
+node('master') {
+    def gerrit_url = GERRIT_SCHEME + '://' + GERRIT_HOST + ':' +GERRIT_PORT +'/' + GERRIT_PROJECT
+
+    // Typical setup to checkout code from gerrit
+    stage ('Checkout') {
+    checkout([ poll: false, scm: [$class: 'GitSCM', branches: [[name: GERRIT_BRANCH]],
+        doGenerateSubmoduleConfigurations: false,
+        extensions: [[$class: 'BuildChooserSetting', buildChooser: [$class: 'GerritTriggerBuildChooser']]],
+        gitTool: 'Default', submoduleCfg: [],
+        userRemoteConfigs: [[refspec: GERRIT_REFSPEC, url: gerrit_url]]]
+    ])
+    }
+    // Two task parallel, one should fail in this example
+    parallel Good: {
+    stage("Good branch") {
+        // the try... catch is omitted here for simplicity
+        sh('exit 0')
+        gerritverificationpublisher([
+                    verifyStatusValue: 1 ,
+                    verifyStatusCategory: 'good',
+                    verifyStatusComment: '',
+                    verifyStatusName: 'test ok',
+                    verifyStatusReporter: 'ci'])
+    }
+    }, Bad: {
+        stage("Bad branch") {
+           try {
+              sh('exit 1')
+           } catch (err) {
+              gerritverificationpublisher([
+                     verifyStatusValue: -1 ,
+                     verifyStatusCategory: 'Test',
+                     verifyStatusComment: 'XXX',
+                     verifyStatusName: 'Test',
+                     verifyStatusReporter: 'jenkins_plugin'])
+       // set overall result
+           currentBuild.result='FAILURE'
+          }
+    }
+   }
+   // set global vote (this is from gerrit-trigger-plugin)
+   setGerritReview()
+}
+```
+
+The result will look like:
+```
+Result	Name	Duration	Voting	Rerun	Category	Reporter	Date
+	Test	1 Sekunde und läuft	voting	Y	Test	jenkins_plugin	10:17 AM
+	test ok	1 Sekunde und läuft	voting	Y	good	ci	10:17 AM
+```
+
 ## Testing
   * Login into Gerrit with any user.
   * View any patchset.
